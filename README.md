@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ✈️ Aircraft Maintenance Summary Tracker
 
 A portfolio project that simulates a real-world SQL workflow to generate an aircraft maintenance summary report. This query consolidates historical maintenance data and forecasted events into a single output—ideal for dashboards, planning tools, and compliance tracking.
@@ -95,3 +96,12 @@ All sensitive data, table names, and business logic have been abstracted or recr
 
 Feel free to fork this repo, open an issue, or reach out via [LinkedIn](#) if you'd like to collaborate on SQL or data analytics projects.
 
+=======
+# 01-aircraft-maintenance
+This SQL query aggregates key upcoming and historical maintenance metrics for a fleet of aircraft. It joins data from various maintenance records, forecast schedules, and aircraft details to produce a clean summary table useful for maintenance planning dashboards or compliance reporting.
+
+-Used advanced joins and subqueries to merge multiple data sources (logs, forecasts, aircraft info)
+-Handled date math and fallback logic using CASE and DATEADD
+-Demonstrated understanding of maintenance intervals and reporting
+-Sanitized all business-specific logic for public presentation
+>>>>>>> 4d028a7e86e9d269e31904f80394215b00d14b1f
