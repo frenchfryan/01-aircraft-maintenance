@@ -1,0 +1,107 @@
+-- =============================================
+-- Aircraft Maintenance Summary Report
+-- Author: Ryan Danao
+-- Description: 
+--   Generates key maintenance data per aircraft, 
+--   including last completed checks and next forecasted events.
+-- =============================================
+
+SELECT DISTINCT 
+    ac.aircraft_type,
+    wo.registration_id AS aircraft_id,
+    CONVERT(DATE, DATEADD(DAY, ac.delivery_offset_days, '2000-01-01')) AS delivery_date,
+
+    -- Last lighter check flight hours or static fallback
+    CASE 
+        WHEN ac.aircraft_type LIKE 'TYPE_X%' THEN '2020-01-01'
+        WHEN ac.aircraft_type LIKE 'TYPE_Y%' THEN '2020-01-01'
+        ELSE 
+            STR(MAX(lc.latest_hours) / 60, 10, 0) + ':' + STR(MAX(lc.latest_hours) % 60, 2, 0)
+    END AS last_lighter_check_hours,
+
+    -- Last lighter check calendar date or static fallback
+    CASE 
+        WHEN ac.aircraft_type LIKE 'TYPE_X%' THEN '2020-01-01'
+        WHEN ac.aircraft_type LIKE 'TYPE_Y%' THEN '2020-01-01'
+        ELSE CONVERT(DATE, MAX(DATEADD(DAY, lc.latest_days_offset, '2000-01-01')))
+    END AS last_lighter_check_date,
+
+    MAX(cc.latest_cycles) AS last_c_check_cycles,
+    STR(MAX(cc.latest_hours) / 60, 10, 0) + ':' + STR(MAX(cc.latest_hours) % 60, 2, 0) AS last_c_check_hours,
+    CONVERT(DATE, MAX(DATEADD(DAY, cc.latest_days_offset, '2000-01-01'))) AS last_c_check_date,
+
+    -- Optional: Next heavy maintenance forecast date
+    CONVERT(DATE, MAX(DATEADD(DAY, hmb.latest_days_offset, '2000-01-01'))) AS next_heavy_maintenance,
+
+    -- Optional: Upcoming weight & balance forecast date, if eligible
+    CASE 
+        WHEN (MIN(wb.raw_days_until_event) - ac.delivery_offset_days) < 1095 THEN NULL
+        WHEN MAX(wb.latest_forecast_date) > GETDATE() THEN NULL
+        ELSE MAX(wb.latest_forecast_date)
+    END AS next_wb_check_date,
+
+    -- Calendar-based forecasted check date (simplified)
+    ISNULL(
+        CONVERT(DATE, MAX(DATEADD(DAY, fc.latest_days_offset, '2000-01-01'))),
+        '2020-01-01'
+    ) AS next_calendar_check_date
+
+FROM work_orders wo
+
+JOIN aircrafts ac 
+    ON wo.registration_id = ac.registration_id
+
+-- Join: Last Lighter Check data
+LEFT JOIN (
+    SELECT 
+        registration_id, 
+        MAX(cycles) AS latest_cycles,
+        MAX(hours) AS latest_hours,
+        MAX(days_offset) AS latest_days_offset
+    FROM maintenance_logs
+    WHERE check_type = 'LIGHTER'
+    GROUP BY registration_id
+) lc ON wo.registration_id = lc.registration_id
+
+-- Join: Last C Check data
+LEFT JOIN (
+    SELECT 
+        registration_id,
+        MAX(cycles) AS latest_cycles,
+        MAX(hours) AS latest_hours,
+        MAX(days_offset) AS latest_days_offset
+    FROM maintenance_logs
+    WHERE check_type IN ('C_CHECK', 'MAJOR_INSPECTION')
+    GROUP BY registration_id
+) cc ON wo.registration_id = cc.registration_id
+
+-- Join: Heavy Maintenance Forecasts
+LEFT JOIN (
+    SELECT 
+        registration_id,
+        MAX(DATEADD(DAY, forecast_days, '2000-01-01')) AS latest_forecast_date,
+        MIN(days_until_event) AS raw_days_until_event
+    FROM forecast_data
+    WHERE forecast_type = 'HEAVY_MAINTENANCE'
+    GROUP BY registration_id
+) hmb ON wo.registration_id = hmb.registration_id
+
+-- Join: Calendar-based Forecasts
+LEFT JOIN (
+    SELECT 
+        registration_id,
+        MAX(days_offset) AS latest_days_offset
+    FROM forecast_data
+    WHERE forecast_type = 'CALENDAR_BASED'
+    GROUP BY registration_id
+) fc ON wo.registration_id = fc.registration_id
+
+-- Filter for active aircraft and valid types
+WHERE ac.aircraft_type IN ('TYPE_X', 'TYPE_Y', 'TYPE_Z')
+    AND ac.status != 'RETIRED'
+    AND wo.is_pending = 0
+
+GROUP BY 
+    ac.aircraft_type, 
+    wo.registration_id, 
+    ac.delivery_offset_days
