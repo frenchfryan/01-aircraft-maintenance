@@ -1,6 +1,7 @@
 # ✈️ Aircraft Maintenance Summary Tracker
 
-A portfolio project that simulates a real-world SQL workflow to generate an aircraft maintenance summary report. This query consolidates historical maintenance data and forecasted events into a single output—ideal for dashboards, planning tools, and compliance tracking.
+🚀 A portfolio project simulating a real-world aircraft maintenance data pipeline.
+🔍 Built using SQL, enhanced with R, and visualized in Power BI — this project transforms raw maintenance and forecast data into insights for dashboards, planning tools, and compliance monitoring.
 
 ---
 
@@ -35,14 +36,6 @@ This query is based on fictional or sanitized versions of the following tables:
 
 ---
 
-## 🔍 Example Use Cases
-
-- Maintenance planning dashboards
-- Aircraft compliance and lifecycle tracking
-- Visual reporting tools (e.g., Power BI, Tableau)
-
----
-
 ## ⚙️ Techniques Used
 
 - SQL joins and subqueries
@@ -64,13 +57,9 @@ Here’s a fictional preview of what the output might look like:
 
 ---
 
-## 📊 Bonus: Dashboard (Optional)
+## 📊 Dashboard: Power BI Visualization
 
-You can visualize this query in tools like:
-
-- Power BI (for scheduling views)
-- Tableau (to map maintenance over time)
-- Excel (for static reporting)
+The query results are visualized in Power BI, where I’ve built a dashboard to provide insights into the maintenance schedule and forecasted events.
 
 > I’ve included a `dashboard_mock.png` and `sample_output.csv` in this repo for demo purposes.
 
@@ -78,9 +67,10 @@ You can visualize this query in tools like:
 
 ## 🛠️ Tools Used
 
-- SQL Server (T-SQL)
+- Sybase SQL for data querying
+- R for data cleaning and setting up automation
 - GitHub for version control
-- (Optional) Power BI / Tableau for visualization
+- Power BI for visualization
 
 ---
 
@@ -93,4 +83,4 @@ All sensitive data, table names, and business logic have been abstracted or recr
 
 ## 🙌 Want to Collaborate?
 
-Feel free to fork this repo, open an issue, or reach out via [LinkedIn](#) if you'd like to collaborate on SQL or data analytics projects.
+Feel free to fork this repo, open an issue, or reach out via [https://www.linkedin.com/in/ryan-danao-98132920a/](#) if you'd like to collaborate on SQL or data analytics projects.
